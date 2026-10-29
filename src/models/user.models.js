@@ -1,50 +1,90 @@
 import { Model, Schema, Types } from "mongoose";
 
+// // Esquema de la propiedad embebida
+const profileSchema = new Schema(
+    {
+        firstName: {
+            type: String,
+            minlength: 2,
+            maxlength: 50,
+        },
+        lastName: {
+            type: String,
+            minlength: 2,
+            maxlength: 50,
+        },
+        birthDate: {
+            type: Date,
+            default: true,
+        },
+        phone: {
+            type: String,
+            default: true,
+        },
+            
+    },
+    { _id: false }
+);
+
+// Esquema del usuario
 const userSchema = new Schema(
     "user",
     {
         username: {
-            type: DataTypes.STRING(3-20),
+            type: String,
+            required: true,
             unique: true,
+            minlength: 3,
+            maxlength: 20,
         },
         email: {
-            type: DataTypes.STRING,
-            allowNull: false,
+            type: String,
+            required: true,
             unique: true,
-            validate: {
-                isEmail: true
-            }
+            lowercase: true,
+            allowNull: false,
+            match: /^\S+@\S+\.\S+$/,
         },
         password: {
             type: DataTypes.STRING(255),
-            allowNull: false,
+            required: true,
         },
         role: {
-            type: DataTypes.ENUM("user", "admin"),
+            type: String,
+            enum: ["user", "admin"],
             default: "user",
         },
-        // propiedad embebida
-        profile: [
-            firstName: {
-                type: DataTypes.STRING(2-50),
-            },
-            lastName: {
-                type: DataTypes.STRING(2-50),
-            },
-            birthDate: {
-                type: DataTypes.DATE,
-                allowNull: true,
-            },
-            phone: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-        ]
+        profile: {
+            type: DataTypes.DATE,
+            default: () => ({}),
+        },
+        deletedAt: {
+            type: DataTypes.DATE,
+            default: null,
+        },
+        
     },
     {
         timestamps: true,
         versionKey: false,
-    }
-)
+    },
+);
+
+// Virtual populate events → eventos organizados por el usuario
+userSchema.virtual("events", {
+    ref: "Event",
+    localField: "_id",
+    foreignField: "organizer",
+});
+
+userSchema.set("toJSON", { virtuals: true });
+userSchema.set("toObject", { virtuals: true });
+
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+
+  this.password = await bcrypt.hash(this.password, 10);
+});
 
 export const UserModel = model("User", userSchema);
