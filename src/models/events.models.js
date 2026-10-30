@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-// Esquema de ubicación embebida
+// Esquema de propiedad embebida
 const locationSchema = new Schema(
   {
     venue: {
@@ -63,15 +63,18 @@ const eventSchema = new Schema(
             enum: ["scheduled", "cancelled", "finished"],
             default: "scheduled",
         },
+        // Relación 1:1 embebidas - Event -> Location
         location: {
             type: locationSchema,
             required: true,
         },
+        // Relación 1:N Referenciadas - User -> Event
         organizer: {
             type: Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
+        // Relación N:M Referenciadas - Event <-> Category
         categories: [
             {
                 type: Schema.Types.ObjectId,

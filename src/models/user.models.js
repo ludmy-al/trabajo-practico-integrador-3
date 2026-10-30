@@ -1,6 +1,6 @@
 import { Model, Schema, Types } from "mongoose";
 
-// // Esquema de la propiedad embebida
+// Esquema de la propiedad embebida
 const profileSchema = new Schema(
     {
         firstName: {
@@ -54,6 +54,7 @@ const userSchema = new Schema(
             enum: ["user", "admin"],
             default: "user",
         },
+        // Relación 1:1 embebidas - User -> Profile
         profile: {
             type: DataTypes.DATE,
             default: () => ({}),
@@ -71,6 +72,7 @@ const userSchema = new Schema(
 );
 
 // Virtual populate events → eventos organizados por el usuario
+// Relación 1:N - User -> Event
 userSchema.virtual("events", {
     ref: "Event",
     localField: "_id",
@@ -85,6 +87,17 @@ userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
+});
+
+// Eliminación lógica
+userSchema.pre("find", function () {
+    this.where({ deletedAt: null });
+});
+userSchema.pre("findOne", function () {
+    this.where({ deletedAt: null });
+});
+userSchema.pre("CountDocuments", function () {
+    this.where({ deletedAt: null });
 });
 
 export const UserModel = model("User", userSchema);
