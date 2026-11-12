@@ -6,6 +6,7 @@ import { config } from "dotenv";
 import { StartDB } from "./src/config/database.js";
 import userRoutes from "./src/routes/user.routes.js";
 import categoryRoutes from "./src/routes/category.routes.js";
+import authRoutes from "./src/routes/auth.routes.js";
 
 config()
 
@@ -18,6 +19,7 @@ app.use(cors());
 
 app.use("/api/users", userRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, async () => {
     await StartDB();
