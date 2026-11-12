@@ -1,5 +1,5 @@
 import { CategoryModel } from "../models/category.models.js";
-import { EventsMdels } from "../models/events.models.js";
+import { EventsModels } from "../models/events.models.js";
 
 // Eliminación de categoria en cascada
 export const deleteCategory = async (req, res) => {
@@ -16,7 +16,7 @@ export const deleteCategory = async (req, res) => {
         }
         
         //para quitar lod eventos que hacen referencia
-        await EventsMdels.updateMany(
+        await EventsModels.updateMany(
             { categories: id },
             { $pull: { categories: id } }
         );
